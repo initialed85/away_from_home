@@ -109,7 +109,7 @@ class Heartbeat(object):
                     remote_uuid: peer
                 })
 
-                self._handle_active()
+            self._handle_active()
 
     def _send(self):
         while not self._stopped:

@@ -16,7 +16,8 @@ if __name__ == '__main__':
         logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     )
 
-    for cls in [Weather.__name__, FujitsuAircon.__name__, Composer.__name__, 'apscheduler.scheduler', 'apscheduler.executors.default']:
+    for cls in [Weather.__name__, FujitsuAircon.__name__, Composer.__name__, Heartbeat.__name__, 'apscheduler.scheduler',
+                'apscheduler.executors.default']:
         logger = logging.getLogger(cls)
         logger.setLevel(logging.DEBUG)
         logger.addHandler(handler)
@@ -62,7 +63,7 @@ if __name__ == '__main__':
     heartbeat.start()
 
     logger.debug('sleeping for a second')
-    time.sleep(1)
+    time.sleep(5)
 
     logger.debug('creating BackgroundScheduler object')
     sched = BackgroundScheduler()
@@ -76,6 +77,7 @@ if __name__ == '__main__':
                 composer_run_job = sched.add_job(composer.run, 'cron', minute=CRON_MINUTES)
             elif not heartbeat.active and composer_run_job is not None:
                 sched.remove_all_jobs()
+                composer_run_job = None
 
             time.sleep(1)
         except KeyboardInterrupt:

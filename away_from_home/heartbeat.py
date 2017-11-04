@@ -10,7 +10,7 @@ from logging import getLogger
 from threading import Thread, RLock
 from uuid import uuid4
 
-_GROUP = '239.255.192.137'
+_GROUP = '239.62.91.137'
 _PORT = 6291
 _STALE_AGE = datetime.timedelta(seconds=5)
 
@@ -26,17 +26,16 @@ class Heartbeat(object):
         self._uuid = uuid4()
         self._peers = {}
 
-        self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
-        self._lock = RLock()
-        self._stopped = False
         self._recv_thread = Thread(
             target=self._recv
         )
         self._send_thread = Thread(
             target=self._send
         )
+        self._stopped = False
+        self._lock = RLock()
+        self._recv_sock = None
+        self._send_sock = None
 
         self._logger = getLogger(self.__class__.__name__)
         self._logger.debug('{0}(); priority={1}, uuid={2}'.format(
@@ -48,17 +47,18 @@ class Heartbeat(object):
         with self._lock:
             return copy.deepcopy(self._peers.values())
 
-    def _setup_recv_socket(self):
+    def _setup_sockets(self):
+        self._recv_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self._recv_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         mreq = struct.pack("4sl", socket.inet_aton(_GROUP), socket.INADDR_ANY)
-        self._sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-        self._sock.bind((_GROUP, _PORT))
+        self._recv_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+        self._recv_sock.bind((_GROUP, _PORT))
+        self._send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
     def _recv(self):
-        self._setup_recv_socket()
-
         while not self._stopped:
             try:
-                data = self._sock.recv(1024)
+                data = self._recv_sock.recv(1024)
             except socket.timeout:
                 continue
 
@@ -67,7 +67,7 @@ class Heartbeat(object):
             remote_uuid = data_as_json.get('uuid')
             remote_priority = data_as_json.get('priority')
 
-            if remote_uuid == self._uuid:
+            if remote_uuid == str(self._uuid):
                 continue
 
             with self._lock:
@@ -79,7 +79,7 @@ class Heartbeat(object):
                     )
                 })
 
-                last_seen_by_uuid = {uuid: peer.last_seen for uuid, peer in self._peers}
+                last_seen_by_uuid = {uuid: peer.last_seen for uuid, peer in self._peers.iteritems()}
 
                 for uuid, last_seen in last_seen_by_uuid.iteritems():
                     if last_seen > datetime.datetime.now() - _STALE_AGE:
@@ -88,18 +88,20 @@ class Heartbeat(object):
     def _send(self):
         while not self._stopped:
             payload = {
-                'uuid': self._uuid,
+                'uuid': str(self._uuid),
                 'priority': self._priority,
             }
 
-            self._sock.sendto(
-                json.dumps(payload, default=lambda x: str(x)),
+            self._send_sock.sendto(
+                json.dumps(payload),
                 (_GROUP, _PORT)
             )
 
             time.sleep(1)
 
     def start(self):
+        self._setup_sockets()
+
         self._recv_thread.start()
         self._send_thread.start()
 

@@ -63,10 +63,11 @@ class Composer(object):
     def run(self, timestamp=None):
         timestamp = timestamp if timestamp is not None else datetime.datetime.now()
 
-        if not self._check_need_to_defer(timestamp):
-            if self._check_above_threshold():
+        if self._check_above_threshold():
+            if not self._check_need_to_defer(timestamp):
                 self._turn_aircon_on(timestamp)
-                return True
-            else:
+            return True
+        else:
+            if not self._check_need_to_defer(timestamp):
                 self._turn_aircon_off(timestamp)
-                return False
+            return False

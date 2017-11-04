@@ -49,7 +49,7 @@ class Composer(object):
         need_to_defer = False if no_last_action else not time_difference_greater_than_debounce
 
         self._logger.debug(
-            '{0}(); no_last_action={1}, time_since_last_action={2}, time_difference_greater_than_debouce={3}, need_to_defer={4}'.format(
+            '{0}(); no_last_action={1}, time_since_last_action={2}, time_difference_greater_than_debounce={3}, need_to_defer={4}'.format(
                 inspect.currentframe().f_code.co_name,
                 no_last_action,
                 time_since_last_action,

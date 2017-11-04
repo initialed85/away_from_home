@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     sched = BlockingScheduler()
 
-    sched.add_job(composer.run, 'cron', minute=CRON_MINUTES)
+    composer_run_job = sched.add_job(composer.run, 'cron', minute=CRON_MINUTES)
 
     while 1:
         try:

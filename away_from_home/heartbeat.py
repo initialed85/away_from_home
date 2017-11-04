@@ -32,6 +32,9 @@ class Heartbeat(object):
         self._send_thread = Thread(
             target=self._send
         )
+        self._expire_thread = Thread(
+            target=self._expire
+        )
         self._stopped = False
         self._lock = RLock()
         self._recv_sock = None
@@ -79,12 +82,6 @@ class Heartbeat(object):
                     )
                 })
 
-                last_seen_by_uuid = {uuid: peer.last_seen for uuid, peer in self._peers.iteritems()}
-
-                for uuid, last_seen in last_seen_by_uuid.iteritems():
-                    if last_seen > datetime.datetime.now() - _STALE_AGE:
-                        self._peers.pop(uuid)
-
     def _send(self):
         while not self._stopped:
             payload = {
@@ -98,6 +95,15 @@ class Heartbeat(object):
             )
 
             time.sleep(1)
+
+    def _expire(self):
+        while not self._stopped:
+            with self._lock:
+                last_seen_by_uuid = {uuid: peer.last_seen for uuid, peer in self._peers.iteritems()}
+
+                for uuid, last_seen in last_seen_by_uuid.iteritems():
+                    if last_seen < datetime.datetime.now() - _STALE_AGE:
+                        self._peers.pop(uuid)
 
     def start(self):
         self._setup_sockets()
@@ -126,4 +132,6 @@ if __name__ == '__main__':
             print ''
             time.sleep(1)
         except KeyboardInterrupt:
-            h.stop()
+            break
+
+    h.stop()

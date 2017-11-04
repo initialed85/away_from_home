@@ -12,7 +12,7 @@ from uuid import uuid4
 
 _GROUP = '239.137.62.91'
 _PORT = 6291
-_STALE_AGE = datetime.timedelta(seconds=5)
+_STALE_AGE = datetime.timedelta(seconds=1.5)
 
 Peer = namedtuple('Peer', ['uuid', 'priority', 'last_seen'])
 

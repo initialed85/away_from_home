@@ -10,7 +10,7 @@ from logging import getLogger
 from threading import Thread, RLock
 from uuid import uuid4
 
-_GROUP = '239.62.91.137'
+_GROUP = '239.137.62.91'
 _PORT = 6291
 _STALE_AGE = datetime.timedelta(seconds=5)
 
@@ -155,31 +155,3 @@ class Heartbeat(object):
         self._recv_thread.join()
         self._send_thread.join()
         self._expire_thread.join()
-
-
-if __name__ == '__main__':
-    import logging
-
-    handler = logging.StreamHandler()
-    handler.setFormatter(
-        logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    )
-
-    logger = logging.getLogger('Heartbeat')
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
-
-    import sys
-
-    h = Heartbeat(
-        priority=int(sys.argv[1])
-    )
-    h.start()
-
-    while 1:
-        try:
-            time.sleep(1)
-        except KeyboardInterrupt:
-            break
-
-    h.stop()

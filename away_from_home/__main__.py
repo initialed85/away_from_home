@@ -74,8 +74,10 @@ if __name__ == '__main__':
     while 1:
         try:
             if heartbeat.active and composer_run_job is None:
+                logger.info('going into active')
                 composer_run_job = sched.add_job(composer.run, 'cron', minute=CRON_MINUTES)
             elif not heartbeat.active and composer_run_job is not None:
+                logger.info('going into standby')
                 sched.remove_all_jobs()
                 composer_run_job = None
 

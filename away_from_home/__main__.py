@@ -26,7 +26,7 @@ if __name__ == '__main__':
         cache_period=CACHE_PERIOD,
     )
 
-    zmotes = active_discover_zmotes(unique_zmote_count=1)
+    zmotes = active_discover_zmotes(uuid_to_look_for=UUID)
 
     zmote = zmotes.get(UUID)
     if zmote is None:

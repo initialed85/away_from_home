@@ -30,6 +30,9 @@ class ComposerTest(unittest.TestCase):
             )
         )
 
+        self._subject._weather.mock_calls = []
+        self._subject._aircon.mock_calls = []
+
     def test_check_above_threshold_true(self):
         self._subject._weather.temperature = 26
 
@@ -62,7 +65,7 @@ class ComposerTest(unittest.TestCase):
         )
 
     def test_turn_aircon_on_already_on(self):
-        self._subject._aircon_is_on = True
+        self._subject._last_action = 'on'
 
         self._subject._turn_aircon_on(_TEST_TIMESTAMP)
 
@@ -92,7 +95,7 @@ class ComposerTest(unittest.TestCase):
         )
 
     def test_turn_aircon_off_already_off(self):
-        self._subject._aircon_is_on = False
+        self._subject._last_action = 'off'
 
         self._subject._turn_aircon_off(_TEST_TIMESTAMP)
 

@@ -11,9 +11,12 @@ class Composer(object):
         self._debounce = debounce
 
         self._last_action_timestamp = None
-        self._aircon_is_on = None
+        self._last_action = None
 
         self._logger = getLogger(self.__class__.__name__)
+        self._logger.debug('{0}(); weather={1}, aircon={2}, threshold={3}, debounce={4}'.format(
+            inspect.currentframe().f_code.co_name, self._weather, self._aircon, self._threshold, self._debounce
+        ))
 
     def _check_above_threshold(self):
         temperature = self._weather.temperature
@@ -28,18 +31,18 @@ class Composer(object):
     def _turn_aircon_on(self, timestamp):
         self._logger.debug('{0}()'.format(inspect.currentframe().f_code.co_name))
 
-        if self._aircon_is_on is None or not self._aircon_is_on:
+        if self._last_action is None or self._last_action is not 'on':
             self._aircon.on()
-            self._aircon_is_on = True
             self._last_action_timestamp = timestamp
+            self._last_action = 'on'
 
     def _turn_aircon_off(self, timestamp):
         self._logger.debug('{0}()'.format(inspect.currentframe().f_code.co_name))
 
-        if self._aircon_is_on is None or self._aircon_is_on:
+        if self._last_action is None or self._last_action is not 'off':
             self._aircon.off()
-            self._aircon_is_on = False
             self._last_action_timestamp = timestamp
+            self._last_action = 'off'
 
     def _check_need_to_defer(self, timestamp):
         no_last_action = self._last_action_timestamp is None

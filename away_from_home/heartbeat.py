@@ -105,17 +105,21 @@ class Heartbeat(object):
                     if last_seen < datetime.datetime.now() - _STALE_AGE:
                         self._peers.pop(uuid)
 
+            time.sleep(1)
+
     def start(self):
         self._setup_sockets()
 
         self._recv_thread.start()
         self._send_thread.start()
+        self._expire_thread.start()
 
     def stop(self):
         self._stopped = True
 
         self._recv_thread.join()
         self._send_thread.join()
+        self._expire_thread.join()
 
 
 if __name__ == '__main__':

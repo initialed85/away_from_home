@@ -64,7 +64,7 @@ class Heartbeat(object):
         self._send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
     def _handle_active(self):
-        if len(self.peers) == 0 or self._priority > max([x.priority for x in self.peers]):
+        if len(self.peers) == 0 or self._priority < max([x.priority for x in self.peers]):
             if not self._active:
                 self._active = True
 

@@ -2,9 +2,8 @@ import logging
 import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from zmote.discoverer import active_discover_zmotes
 
-from aircon import FujitsuAircon
+from aircon import FujitsuAircon, AutoDiscoveringFujitsuAircon
 from composer import Composer
 from config import *
 from heartbeat import Heartbeat
@@ -16,8 +15,19 @@ if __name__ == '__main__':
         logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     )
 
-    for cls in [Weather.__name__, FujitsuAircon.__name__, Composer.__name__, Heartbeat.__name__, 'apscheduler.scheduler',
-                'apscheduler.executors.default']:
+    class_names_to_log = [
+        Weather.__name__,
+        'Connector',
+        'Transport',
+        'Discoverer',
+        FujitsuAircon.__name__,
+        Composer.__name__,
+        Heartbeat.__name__,
+        'apscheduler.scheduler',
+        'apscheduler.executors.default',
+    ]
+
+    for cls in class_names_to_log:
         logger = logging.getLogger(cls)
         logger.setLevel(logging.DEBUG)
         logger.addHandler(handler)
@@ -34,35 +44,25 @@ if __name__ == '__main__':
         cache_period=CACHE_PERIOD,
     )
 
-    logger.debug('discovering zmotes')
-    zmotes = active_discover_zmotes(uuid_to_look_for=UUID)
-
-    zmote = zmotes.get(UUID)
-    if zmote is None:
-        raise ValueError('zmote {0} was not in returned zmotes'.format(UUID))
-
-    logger.debug('got {0}'.format(zmote))
-
     logger.debug('creating FujitsuAircon object')
-    aircon = FujitsuAircon(
-        ip=zmote.get('IP'),
+    aircon = AutoDiscoveringFujitsuAircon(
+        uuid=UUID,
         retries=RETRIES,
     )
-    aircon.connect()
 
     logger.debug('creating Composer object')
     composer = Composer(
         weather=weather,
         aircon=aircon,
-        threshold=THRESHOLD,
-        debounce=DEBOUNCE,
+        on_threshold=ON_THRESHOLD,
+        off_threshold=OFF_THRESHOLD
     )
 
     logger.debug('creating Heartbeat object with priority {0}'.format(HA_PRIORITY))
     heartbeat = Heartbeat(priority=HA_PRIORITY)
     heartbeat.start()
 
-    logger.debug('sleeping for a second')
+    logger.debug('sleeping for 5 seconds')
     time.sleep(5)
 
     logger.debug('creating BackgroundScheduler object')
@@ -75,7 +75,7 @@ if __name__ == '__main__':
         try:
             if heartbeat.active and composer_run_job is None:
                 logger.info('going into active')
-                composer_run_job = sched.add_job(composer.run, 'cron', minute=CRON_MINUTES)
+                composer_run_job = sched.add_job(composer.run, 'cron', second=CRON_SECONDS)
             elif not heartbeat.active and composer_run_job is not None:
                 logger.info('going into standby')
                 sched.remove_all_jobs()
@@ -88,5 +88,3 @@ if __name__ == '__main__':
     heartbeat.stop()
 
     sched.shutdown()
-
-    aircon.disconnect()

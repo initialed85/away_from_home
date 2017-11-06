@@ -31,7 +31,8 @@ These steps will assume you're on a Raspberry Pi running Raspbian Lite as the "p
     * OWM_KEY (sign up at [OpenWeatherMap](http://www.openweathermap.com/))
     * LAT and LON of the location you want to pull weather for
     * UUID of the target [http://zmote.io/](zmote.io) device
-    * THRESHOLD temperature (in celsius) for turning on/off the aircon
+    * ON_THRESHOLD temperature (in celsius) for turning on the aircon
+    * OFF_THRESHOLD temperature (in celsius) for turning off the aircon
 * reload the supervisor config file
     * ```sudo supervisorctl reread```
     * ```sudo supervisorctl update```

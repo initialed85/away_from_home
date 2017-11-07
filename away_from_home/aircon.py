@@ -66,7 +66,15 @@ class AutoDiscoveringAircon(object):
         self._aircon = None
 
     def _acquire_aircon(self):
-        ip = active_discover_zmotes(uuid_to_look_for=self._uuid).get(self._uuid)['IP']
+        zmote = active_discover_zmotes(uuid_to_look_for=self._uuid).get(self._uuid)
+
+        if zmote is None:
+            raise ValueError('failed to discover desired zmote')
+
+        ip = zmote.get('IP')
+        if ip is None:
+            raise ValueError('failed to get IP from zmote={0}'.format(zmote))
+
         self._aircon = self._aircon_class(
             ip=ip,
             retries=self._retries

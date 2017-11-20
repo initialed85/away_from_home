@@ -39,14 +39,14 @@ class Composer(object):
     def _turn_aircon_on(self):
         self._logger.debug('{0}()'.format(inspect.currentframe().f_code.co_name))
 
-        if self._last_action is None or self._last_action is not 'on':
+        if self._last_action is None or self._last_action != 'on':
             self._aircon.on()
             self._last_action = 'on'
 
     def _turn_aircon_off(self):
         self._logger.debug('{0}()'.format(inspect.currentframe().f_code.co_name))
 
-        if self._last_action is None or self._last_action is not 'off':
+        if self._last_action is None or self._last_action != 'off':
             self._aircon.off()
             self._last_action = 'off'
 

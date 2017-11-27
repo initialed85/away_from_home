@@ -21,8 +21,10 @@ These steps will assume you're on a Raspberry Pi running Raspbian Lite as the "p
 
 * pull this repo down
     * ```git clone https://github.com/initialed85/away_from_home```
-* change the pulled folder
+* change to the pulled folder
     * ```cd away_from_home```
+* create a virtualenv
+    * ```mkvirtualenv away_from_home```
 * install the pip requirements
     * ```pip install -r requirements.txt```
 * install the supervisor config file

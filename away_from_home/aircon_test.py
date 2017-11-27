@@ -4,7 +4,7 @@ import unittest
 from hamcrest import assert_that, equal_to
 from mock import patch, call, MagicMock
 
-from away_from_home.aircon import Aircon, FujitsuAircon, _FUJITSU_ON, _FUJITSU_OFF, AutoDiscoveringAircon
+from away_from_home.aircon import Aircon, FujitsuAircon, _FUJITSU_ON, _FUJITSU_OFF, AutoDiscoveringAircon, StaticAircon
 
 _TEST_TIMESTAMP = datetime.datetime(year=1991, month=2, day=6)
 
@@ -115,6 +115,108 @@ class AutoDiscoveringAirconTest(unittest.TestCase):
             self._subject._aircon_class.mock_calls,
             equal_to([
                 call(ip='192.168.1.12', retries=2),
+                call().connect(),
+            ])
+        )
+
+        assert_that(
+            self._subject._aircon,
+            equal_to(self._subject._aircon_class())
+        )
+
+    def test_release_aircon(self):
+        mock_aircon = MagicMock()
+        self._subject._aircon = mock_aircon
+
+        self._subject._release_aircon()
+
+        assert_that(
+            mock_aircon.mock_calls,
+            equal_to([
+                call.disconnect()
+            ])
+        )
+
+        assert_that(
+            self._subject._aircon,
+            equal_to(None)
+        )
+
+    def test_on(self):
+        self._subject._acquire_aircon = MagicMock()
+        self._subject._aircon = MagicMock()
+        self._subject._release_aircon = MagicMock()
+
+        self._subject.on()
+
+        assert_that(
+            self._subject._acquire_aircon.mock_calls,
+            equal_to([
+                call()
+            ])
+        )
+
+        assert_that(
+            self._subject._aircon.mock_calls,
+            equal_to([
+                call.on()
+            ])
+        )
+
+        assert_that(
+            self._subject._release_aircon.mock_calls,
+            equal_to([
+                call()
+            ])
+        )
+
+    def test_off(self):
+        self._subject._acquire_aircon = MagicMock()
+        self._subject._aircon = MagicMock()
+        self._subject._release_aircon = MagicMock()
+
+        self._subject.off()
+
+        assert_that(
+            self._subject._acquire_aircon.mock_calls,
+            equal_to([
+                call()
+            ])
+        )
+
+        assert_that(
+            self._subject._aircon.mock_calls,
+            equal_to([
+                call.off()
+            ])
+        )
+
+        assert_that(
+            self._subject._release_aircon.mock_calls,
+            equal_to([
+                call()
+            ])
+        )
+
+
+class StaticAirconTest(unittest.TestCase):
+    def setUp(self):
+        self._subject = StaticAircon(
+            ip=_IP,
+            retries=2,
+            aircon_class=MagicMock(),
+        )
+
+    def test_acquire_aircon(self):
+        assert_that(
+            self._subject._acquire_aircon(),
+            equal_to(None)
+        )
+
+        assert_that(
+            self._subject._aircon_class.mock_calls,
+            equal_to([
+                call(ip=_IP, retries=2),
                 call().connect(),
             ])
         )

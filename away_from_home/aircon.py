@@ -98,6 +98,36 @@ class AutoDiscoveringAircon(object):
         self._release_aircon()
 
 
+class StaticAircon(object):
+    def __init__(self, ip, retries, aircon_class):
+        self._ip = ip
+        self._retries = retries
+        self._aircon_class = aircon_class
+
+        self._aircon = None
+
+    def _acquire_aircon(self):
+        self._aircon = self._aircon_class(
+            ip=self._ip,
+            retries=self._retries
+        )
+        self._aircon.connect()
+
+    def _release_aircon(self):
+        self._aircon.disconnect()
+        self._aircon = None
+
+    def on(self):
+        self._acquire_aircon()
+        self._aircon.on()
+        self._release_aircon()
+
+    def off(self):
+        self._acquire_aircon()
+        self._aircon.off()
+        self._release_aircon()
+
+
 _FUJITSU_ON = '1:1,0,37000,1,1,122,62,15,16,15,16,15,46,15,16,15,46,15,16,15,16,15,16,15,46,15,46,15,16,15,16,15,16,15,46,15,46,15,16,15,16,14,16,15,16,15,16,14,16,15,16,15,16,14,16,15,16,15,16,15,16,15,16,15,46,15,16,15,16,15,16,15,16,15,16,14,16,15,16,15,46,15,16,15,16,15,16,15,16,15,16,15,46,15,46,15,46,15,46,15,46,15,46,15,16,15,16,15,16,14,47,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,46,15,46,15,16,15,16,15,47,14,16,15,16,15,16,15,16,15,46,15,16,15,16,15,46,15,16,15,16,15,16,15,16,15,16,14,16,15,16,15,46,15,46,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,14,16,15,16,15,16,14,16,15,16,15,16,14,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,46,15,46,15,16,15,46,15,16,15,46,15,16,15,46,15,3692'
 _FUJITSU_OFF = '1:1,0,37000,1,1,122,62,15,16,15,16,15,46,15,16,15,46,15,16,14,16,15,16,15,46,15,47,14,16,15,16,15,16,14,47,15,47,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,46,15,16,15,16,15,16,15,16,15,16,15,16,15,16,15,46,15,16,15,16,15,16,15,16,15,46,15,16,15,16,15,16,15,16,15,16,14,16,15,3692'
 
@@ -114,6 +144,15 @@ class AutoDiscoveringFujitsuAircon(AutoDiscoveringAircon):
     def __init__(self, uuid, retries):
         super(AutoDiscoveringFujitsuAircon, self).__init__(
             uuid=uuid,
+            retries=retries,
+            aircon_class=FujitsuAircon,
+        )
+
+
+class StaticFujitsuAircon(AutoDiscoveringAircon):
+    def __init__(self, ip, retries):
+        super(StaticFujitsuAircon, self).__init__(
+            ip=ip,
             retries=retries,
             aircon_class=FujitsuAircon,
         )

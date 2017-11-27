@@ -3,7 +3,7 @@ import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from aircon import FujitsuAircon, AutoDiscoveringFujitsuAircon
+from aircon import FujitsuAircon, StaticFujitsuAircon
 from composer import Composer
 from config import *
 from heartbeat import Heartbeat
@@ -44,9 +44,9 @@ if __name__ == '__main__':
         cache_period=CACHE_PERIOD,
     )
 
-    logger.debug('creating FujitsuAircon object')
-    aircon = AutoDiscoveringFujitsuAircon(
-        uuid=UUID,
+    logger.debug('creating StaticFujitsuAircon object')
+    aircon = StaticFujitsuAircon(
+        ip=IP,
         retries=RETRIES,
     )
 

@@ -58,6 +58,9 @@ if __name__ == '__main__':
         off_threshold=OFF_THRESHOLD
     )
 
+    logger.debug('running Composer once to ensure everything works')
+    composer.run()
+
     logger.debug('creating Heartbeat object with priority {0}'.format(HA_PRIORITY))
     heartbeat = Heartbeat(priority=HA_PRIORITY)
     heartbeat.start()

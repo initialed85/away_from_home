@@ -81,6 +81,8 @@ class AutoDiscoveringAircon(object):
 
             return
 
+        raise ValueError('failed to discover zmote and acquire aircon')
+
     def _release_aircon(self):
         self._aircon.disconnect()
         self._aircon = None

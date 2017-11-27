@@ -149,7 +149,7 @@ class AutoDiscoveringFujitsuAircon(AutoDiscoveringAircon):
         )
 
 
-class StaticFujitsuAircon(AutoDiscoveringAircon):
+class StaticFujitsuAircon(StaticAircon):
     def __init__(self, ip, retries):
         super(StaticFujitsuAircon, self).__init__(
             ip=ip,

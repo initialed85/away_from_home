@@ -32,7 +32,7 @@ class ComposerTest(unittest.TestCase):
         self._subject._aircon.mock_calls = []
 
     def test_check_above_on_threshold_true(self):
-        self._subject._weather.apparent_temperature = 30
+        self._subject._weather.temperature = 30
 
         assert_that(
             self._subject._check_above_on_threshold(),
@@ -40,7 +40,7 @@ class ComposerTest(unittest.TestCase):
         )
 
     def test_check_above_on_threshold_false(self):
-        self._subject._weather.apparent_temperature = 26
+        self._subject._weather.temperature = 26
 
         assert_that(
             self._subject._check_above_on_threshold(),

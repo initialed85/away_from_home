@@ -17,7 +17,7 @@ class Composer(object):
         ))
 
     def _check_above_on_threshold(self):
-        temperature = self._weather.apparent_temperature
+        temperature = self._weather.temperature
         above_on_threshold = temperature >= self._on_threshold
 
         self._logger.debug('{0}(); temperature={1}, above_on_threshold={2}'.format(
@@ -27,7 +27,7 @@ class Composer(object):
         return above_on_threshold
 
     def _check_below_off_threshold(self):
-        temperature = self._weather.apparent_temperature
+        temperature = self._weather.temperature
         below_off_threshold = temperature <= self._off_threshold
 
         self._logger.debug('{0}(); temperature={1}, below_off_threshold={2}'.format(

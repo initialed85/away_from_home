@@ -5,7 +5,7 @@ from math import exp
 
 from pyowm import OWM
 
-from expirer import ExpiringBool
+from away_from_home.expirer import ExpiringBool
 
 
 def get_apparent_temperature(temperature, humidity, wind_speed):
@@ -69,14 +69,15 @@ class Weather(object):
             self._sunrise = datetime.datetime.fromtimestamp(self._weather.get_sunrise_time(timeformat='unix'))
             self._sunset = datetime.datetime.fromtimestamp(self._weather.get_sunset_time(timeformat='unix'))
 
-            self._logger.debug('{0}(); temperature={1}, humidity={2}, sunrise={3}, sunset={4}, apparent_temperature={5}'.format(
-                inspect.currentframe().f_code.co_name,
-                self._temperature,
-                self._humidity,
-                self._sunrise,
-                self._sunset,
-                self._apparent_temperature
-            ))
+            self._logger.debug(
+                '{0}(); temperature={1}, humidity={2}, sunrise={3}, sunset={4}, apparent_temperature={5}'.format(
+                    inspect.currentframe().f_code.co_name,
+                    self._temperature,
+                    self._humidity,
+                    self._sunrise,
+                    self._sunset,
+                    self._apparent_temperature
+                ))
 
             self._need_to_update.value = False
 
